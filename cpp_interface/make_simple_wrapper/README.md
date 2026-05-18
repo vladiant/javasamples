@@ -32,8 +32,7 @@ Done.
 ## Clean
 
 ```bash
-cd part1_simple_wrapper && make clean
-cd part2_callbacks && make clean
+make clean
 ```
 
 ## Key Concepts (from the article)
