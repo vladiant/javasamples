@@ -1,0 +1,11 @@
+# Gradle build output
+build/
+.gradle/
+
+# Gradle wrapper jar (can be regenerated)
+gradle/wrapper/gradle-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+.vscode/

@@ -1,0 +1,45 @@
+plugins {
+    id 'application'
+}
+
+application {
+    mainClass = 'com.example.Main'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['java']
+        }
+    }
+}
+
+def javaHome = org.gradle.internal.jvm.Jvm.current().javaHome.absolutePath
+def osName = System.getProperty('os.name').toLowerCase()
+def isMac = osName.contains('mac')
+def libName = isMac ? 'libNative.dylib' : 'libNative.so'
+def jniPlatformDir = isMac ? 'darwin' : 'linux'
+def libDir = layout.buildDirectory.dir('lib').get().asFile
+
+task compileNative(type: Exec) {
+    inputs.files fileTree('cpp')
+    outputs.file new File(libDir, libName)
+
+    doFirst {
+        libDir.mkdirs()
+    }
+
+    commandLine 'g++',
+        '-std=c++17', '-fPIC', '-shared',
+        "-I${javaHome}/include",
+        "-I${javaHome}/include/${jniPlatformDir}",
+        '-Icpp',
+        '-o', new File(libDir, libName).absolutePath,
+        'cpp/native_jni.cpp'
+}
+
+compileJava.dependsOn compileNative
+
+run {
+    systemProperty 'java.library.path', libDir.absolutePath
+}
