@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'com.example'
+version = '1.0'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['java']
+        }
+    }
+}
+
+application {
+    mainClass = 'com.example.Main'
+}
+
+def javaHome = org.gradle.internal.jvm.Jvm.current().javaHome.absolutePath
+def libDir = layout.buildDirectory.dir('lib').get().asFile
+
+task compileNative(type: Exec) {
+    group = 'build'
+    description = 'Compiles the native JNI shared library'
+
+    inputs.files fileTree('cpp')
+    outputs.file new File(libDir, 'libNative.so')
+
+    doFirst {
+        libDir.mkdirs()
+    }
+
+    commandLine 'g++',
+        '-std=c++17', '-fPIC', '-shared',
+        "-I${javaHome}/include",
+        "-I${javaHome}/include/linux",
+        '-Icpp', '-lpthread',
+        '-o', new File(libDir, 'libNative.so').absolutePath,
+        'cpp/native_jni.cpp'
+}
+
+compileJava.dependsOn compileNative
+
+run {
+    jvmArgs "-Djava.library.path=${libDir.absolutePath}"
+}
