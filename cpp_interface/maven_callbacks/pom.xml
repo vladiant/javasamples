@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>maven-callbacks</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <native.lib.dir>${project.build.directory}/lib</native.lib.dir>
+        <native.src.dir>${project.basedir}/src/main/native</native.src.dir>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Build the native shared library using g++ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>compile-native</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${native.lib.dir}"/>
+                                <exec executable="g++" failonerror="true">
+                                    <arg value="-std=c++17"/>
+                                    <arg value="-fPIC"/>
+                                    <arg value="-shared"/>
+                                    <arg value="-I${java.home}/include"/>
+                                    <arg value="-I${java.home}/include/linux"/>
+                                    <arg value="-I${native.src.dir}"/>
+                                    <arg value="-lpthread"/>
+                                    <arg value="-o"/>
+                                    <arg value="${native.lib.dir}/libNative.so"/>
+                                    <arg value="${native.src.dir}/native_jni.cpp"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Run the application with the native library on the path -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-Djava.library.path=${native.lib.dir}</argument>
+                        <argument>-cp</argument>
+                        <classpath/>
+                        <argument>com.example.Main</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
