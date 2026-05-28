@@ -1,0 +1,28 @@
+# Bazel output directories (symlinked into the workspace root)
+/bazel-*
+
+# Bazel user cache and remote cache credentials
+/.bazel/
+
+# IDE project files
+/.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+*.launch
+
+# VS Code
+.vscode/
+
+# Compiled class files
+*.class
+
+# JAR files
+*.jar
+
+# OS-specific files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,5 @@
+# UseParallelOldGC was removed in JDK 15+. The bundled remote_java_tools_linux
+# (built with Bazel 4.0.0) hard-codes that flag in its default toolchain.
+# Switch to the vanilla toolchain which passes no JVM flags to JavaBuilder.
+build --java_toolchain=@remote_java_tools_linux//:toolchain_vanilla
+build --host_java_toolchain=@remote_java_tools_linux//:toolchain_vanilla
